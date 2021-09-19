@@ -21,7 +21,7 @@ fn main() {
         })
         .map(|d| Vec::<Command>::from(d))
         .flatten()
-        .filter_map(|command|  match command {
+        .map(|command| match command {
             Command::Move(position, params) => {
                 let params: Vec<Number> = params.into();
 
@@ -36,9 +36,9 @@ fn main() {
                     .map(|parameters| Command::Line(position, Parameters::from(parameters)))
                     .collect();
                 lines.insert(0, move_cmd);
-                Some(lines)
+                lines
             }, 
-            _ => None
+            _ => vec![command]
         })
         .flatten()
         .collect();
