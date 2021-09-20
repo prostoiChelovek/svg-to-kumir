@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use svg::node::element::path::{Command, Data, Number, Parameters};
+use svg::node::element::path::{Command, Data, Number, Parameters, Position};
 use svg::node::element::tag::Path;
 use svg::parser::Event;
 
@@ -33,6 +33,21 @@ impl From<Token> for String {
 
             Token::PainterModule => "Чертежник".to_string()
         }
+    }
+}
+
+fn convert_move_cmd(position: Position, params: Parameters) -> Token {
+    match position {
+        Position::Absolute => Token::Move(params[0], params[1]),
+        Position::Relative => Token::MoveRelative(params[0], params[1]),
+    }
+}
+
+fn convert(command: Command) -> Vec<Token> {
+    match command {
+        Command::Move(position, params) => vec![Token::PenUp, convert_move_cmd(position, params)],
+        Command::Line(position, params) => vec![Token::PenDown, convert_move_cmd(position, params)],
+        _ => vec![]
     }
 }
 
@@ -73,10 +88,12 @@ fn main() {
             _ => vec![command]
         })
         .flatten()
+        .map(convert)
+        .flatten()
         .collect();
 
     for cmd in commands {
-        println!("{:?}", cmd);
+        println!("{}", String::from(cmd));
     }
 
 }
