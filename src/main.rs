@@ -56,6 +56,7 @@ fn main() {
     let mut content = String::new();
     let svg = svg::open(path, &mut content).unwrap();
 
+    let mut current_path_start: Option<Parameters> = None;
     let commands: Vec<_> = svg
         .into_iter()
         .filter_map(|event| match event {
@@ -72,10 +73,12 @@ fn main() {
             Command::Move(position, params) => {
                 let params: Vec<Number> = params.into();
 
-                let move_cmd = Command::Move(Position::Absolute, 
-                                             Parameters::from(params.clone().into_iter()
-                                                              .take(2)
-                                                              .collect::<Vec<_>>()));
+                let move_parameters = Parameters::from(params.clone().into_iter()
+                                                       .take(2)
+                                                       .collect::<Vec<_>>());
+                current_path_start = Some(move_parameters.clone());
+
+                let move_cmd = Command::Move(Position::Absolute, move_parameters);
                 let mut lines: Vec<Command> = params.clone().into_iter()
                     .tuples::<(_, _)>()
                     .skip(1)
@@ -85,6 +88,9 @@ fn main() {
                 lines.insert(0, move_cmd);
                 lines
             }, 
+            Command::Close => {
+                vec![Command::Line(Position::Absolute, current_path_start.to_owned().unwrap())]
+            },
             _ => vec![command]
         })
         .flatten()
