@@ -43,10 +43,18 @@ fn convert_move_cmd(position: Position, params: Parameters) -> Token {
     }
 }
 
+fn straight_line_construct_move(position: Position, params: Parameters, cord_idx: usize) -> Token {
+    let mut move_params = vec![0f32];
+    move_params.insert(cord_idx, params[0]);
+    convert_move_cmd(position, Parameters::from(move_params))
+}
+
 fn convert(command: Command) -> Vec<Token> {
     match command {
         Command::Move(position, params) => vec![Token::PenUp, convert_move_cmd(position, params)],
         Command::Line(position, params) => vec![Token::PenDown, convert_move_cmd(position, params)],
+        Command::VerticalLine(position, params) => vec![Token::PenDown, straight_line_construct_move(position, params, 1)],
+        Command::HorizontalLine(position, params) => vec![Token::PenDown, straight_line_construct_move(position, params, 0)],
         _ => vec![]
     }
 }
