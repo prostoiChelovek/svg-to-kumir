@@ -72,7 +72,7 @@ fn main() {
             Command::Move(position, params) => {
                 let params: Vec<Number> = params.into();
 
-                let move_cmd = Command::Move(position, 
+                let move_cmd = Command::Move(Position::Absolute, 
                                              Parameters::from(params.clone().into_iter()
                                                               .take(2)
                                                               .collect::<Vec<_>>()));
