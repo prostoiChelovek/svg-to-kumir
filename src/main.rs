@@ -4,6 +4,38 @@ use svg::node::element::path::{Command, Data, Number, Parameters};
 use svg::node::element::tag::Path;
 use svg::parser::Event;
 
+enum Token {
+    Use(String),
+    AlgorithmStart,
+    BlockStart,
+    BlockEnd,
+
+    PenDown,
+    PenUp,
+    Move(f32, f32),
+    MoveRelative(f32, f32),
+
+    PainterModule
+}
+
+impl From<Token> for String {
+    fn from(token: Token) -> String {
+        match token {
+            Token::Use(module) => format!("использовать {}", module),
+            Token::AlgorithmStart => "алг".to_string(),
+            Token::BlockStart => "нач".to_string(),
+            Token::BlockEnd => "кон".to_string(),
+
+            Token::PenDown => "опустить перо".to_string(),
+            Token::PenUp => "поднять перо".to_string(),
+            Token::Move(x, y) => format!("сместиться в точку({}, {})", x, y),
+            Token::MoveRelative(x, y) => format!("сместиться на вектор({}, {})", x, y),
+
+            Token::PainterModule => "Чертежник".to_string()
+        }
+    }
+}
+
 fn main() {
     let path = "/tmp/d.svg";
     let mut content = String::new();
