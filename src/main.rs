@@ -79,9 +79,21 @@ fn convert_move_cmd(position: Position, params: Parameters) -> Token {
 }
 
 fn straight_line_construct_move(position: Position, params: Parameters, cord_idx: usize) -> Token {
-    let mut move_params = vec![0f32];
-    move_params.insert(cord_idx, params[0]);
-    convert_move_cmd(position, Parameters::from(move_params))
+    match position {
+        Position::Absolute => {
+            let move_params: Vec<NumOrExpr> = match cord_idx {
+                0 => vec![NumOrExpr::Num(params[0]), NumOrExpr::Expr("y".into())],
+                1 => vec![NumOrExpr::Expr("x".into()), NumOrExpr::Num(params[1])],
+                _ => panic!("bad cord_idx")
+            };
+            convert_move_cmd_r(position, move_params)
+        },
+        Position::Relative => {
+            let mut move_params = vec![0f32];
+            move_params.insert(cord_idx, params[0]);
+            convert_move_cmd(position, Parameters::from(move_params))
+        }
+    }
 }
 
 fn construct_assignment(var: &str, value: &NumOrExpr) -> Token {
