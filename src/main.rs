@@ -1,8 +1,30 @@
+use std::fmt;
+
 use itertools::Itertools;
 
 use svg::node::element::path::{Command, Data, Number, Parameters, Position};
 use svg::node::element::tag::Path;
 use svg::parser::Event;
+
+#[derive(Clone)]
+enum NumOrExpr {
+    Num(f32),
+    Expr(String)
+}
+
+impl From<NumOrExpr> for String {
+    fn from(x: NumOrExpr) -> String {
+        match x {
+           NumOrExpr::Num(n) => n.to_string(),
+           NumOrExpr::Expr(e) => e
+        }
+    }
+}
+impl fmt::Display for NumOrExpr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", String::from(self.clone()))
+    }
+}
 
 enum Token {
     Use(String),
