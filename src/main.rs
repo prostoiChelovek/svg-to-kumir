@@ -65,6 +65,14 @@ fn construct_add_equals(var: &str, value: &f32) -> Token {
     Token::Assign(var.into(), Token::Add(var.into(), value.to_string()).into())
 }
 
+fn update_current_pos(cmd: Token) -> Vec<Token> {
+    match cmd {
+        Token::Move(x, y) => vec![cmd, construct_assignment("x", &x), construct_assignment("y", &y)],
+        Token::MoveRelative(x, y) => vec![cmd, construct_add_equals("x", &x), construct_add_equals("y", &y)],
+        _ => vec![cmd]
+    }
+}
+
 fn convert(command: Command) -> Vec<Token> {
     match command {
         Command::Move(position, params) => vec![Token::PenUp, convert_move_cmd(position, params)],
@@ -119,6 +127,8 @@ fn main() {
         })
         .flatten()
         .map(convert)
+        .flatten()
+        .map(update_current_pos)
         .flatten()
         .collect();
 
