@@ -112,9 +112,21 @@ fn main() {
         .flatten()
         .collect();
 
+    // TODO
+    for cmd in [
+        Token::Use(Token::PainterModule.into()),
+        Token::AlgorithmStart,
+        Token::BlockStart,
+        Token::Variable("x".into()), Token::Variable("y".into())
+    ] {
+        println!("{}", String::from(cmd));
+    }
+
     for cmd in commands {
         println!("{}", String::from(cmd));
     }
+
+    println!("{}", String::from(Token::BlockEnd));
 
 }
 
