@@ -26,6 +26,7 @@ impl fmt::Display for NumOrExpr {
     }
 }
 
+#[derive(Clone)]
 enum Token {
     Use(String),
     AlgorithmStart,
@@ -34,8 +35,8 @@ enum Token {
 
     PenDown,
     PenUp,
-    Move(f32, f32),
-    MoveRelative(f32, f32),
+    Move(NumOrExpr, NumOrExpr),
+    MoveRelative(NumOrExpr, NumOrExpr),
 
     Variable(String),
     Assign(String, String),
@@ -66,11 +67,15 @@ impl From<Token> for String {
     }
 }
 
-fn convert_move_cmd(position: Position, params: Parameters) -> Token {
+fn convert_move_cmd_r(position: Position, params: Vec<NumOrExpr>) -> Token {
     match position {
-        Position::Absolute => Token::Move(params[0], params[1]),
-        Position::Relative => Token::MoveRelative(params[0], params[1]),
+        Position::Absolute => Token::Move(params[0].clone(), params[1].clone()),
+        Position::Relative => Token::MoveRelative(params[0].clone(), params[1].clone()),
     }
+}
+
+fn convert_move_cmd(position: Position, params: Parameters) -> Token {
+    convert_move_cmd_r(position, vec![NumOrExpr::Num(params[0]), NumOrExpr::Num(params[1])])
 }
 
 fn straight_line_construct_move(position: Position, params: Parameters, cord_idx: usize) -> Token {
@@ -79,18 +84,18 @@ fn straight_line_construct_move(position: Position, params: Parameters, cord_idx
     convert_move_cmd(position, Parameters::from(move_params))
 }
 
-fn construct_assignment(var: &str, value: &f32) -> Token {
+fn construct_assignment(var: &str, value: &NumOrExpr) -> Token {
     Token::Assign(var.into(), value.to_string())
 }
 
-fn construct_add_equals(var: &str, value: &f32) -> Token {
+fn construct_add_equals(var: &str, value: &NumOrExpr) -> Token {
     Token::Assign(var.into(), Token::Add(var.into(), value.to_string()).into())
 }
 
 fn update_current_pos(cmd: Token) -> Vec<Token> {
     match cmd {
-        Token::Move(x, y) => vec![cmd, construct_assignment("x", &x), construct_assignment("y", &y)],
-        Token::MoveRelative(x, y) => vec![cmd, construct_add_equals("x", &x), construct_add_equals("y", &y)],
+        Token::Move(ref x, ref y) => vec![cmd.clone(), construct_assignment("x", &x), construct_assignment("y", &y)],
+        Token::MoveRelative(ref x, ref y) => vec![cmd.clone(), construct_add_equals("x", &x), construct_add_equals("y", &y)],
         _ => vec![cmd]
     }
 }
