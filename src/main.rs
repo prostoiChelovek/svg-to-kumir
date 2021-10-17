@@ -17,6 +17,7 @@ enum Token {
 
     Variable(String),
     Assign(String, String),
+    Add(String, String),
 
     PainterModule
 }
@@ -36,6 +37,7 @@ impl From<Token> for String {
 
             Token::Variable(name) => format!("вещ {}", name),
             Token::Assign(name, value) => format!("{} := {}", name, value),
+            Token::Add(name, value) => format!("{} + ({})", name, value),
 
             Token::PainterModule => "Чертежник".to_string()
         }
@@ -53,6 +55,14 @@ fn straight_line_construct_move(position: Position, params: Parameters, cord_idx
     let mut move_params = vec![0f32];
     move_params.insert(cord_idx, params[0]);
     convert_move_cmd(position, Parameters::from(move_params))
+}
+
+fn construct_assignment(var: &str, value: &f32) -> Token {
+    Token::Assign(var.into(), value.to_string())
+}
+
+fn construct_add_equals(var: &str, value: &f32) -> Token {
+    Token::Assign(var.into(), Token::Add(var.into(), value.to_string()).into())
 }
 
 fn convert(command: Command) -> Vec<Token> {
