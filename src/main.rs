@@ -15,6 +15,9 @@ enum Token {
     Move(f32, f32),
     MoveRelative(f32, f32),
 
+    Variable(String),
+    Assign(String, String),
+
     PainterModule
 }
 
@@ -30,6 +33,9 @@ impl From<Token> for String {
             Token::PenUp => "поднять перо".to_string(),
             Token::Move(x, y) => format!("сместиться в точку({}, {})", x, y),
             Token::MoveRelative(x, y) => format!("сместиться на вектор({}, {})", x, y),
+
+            Token::Variable(name) => format!("вещ {}", name),
+            Token::Assign(name, value) => format!("{} := {}", name, value),
 
             Token::PainterModule => "Чертежник".to_string()
         }
